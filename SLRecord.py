@@ -1,5 +1,7 @@
 import tkinter as tk
 
+from analyze_damage import analyze_click_order
+
 
 class ButtonApp:
     def __init__(self, root):
@@ -36,10 +38,19 @@ class ButtonApp:
             frame = tk.Frame(self.root, width=50, height=50)
             frame.grid(row=3, column=i, padx=5, pady=5)
 
+            if self.battle_sequence[self.round_number - 1] == "":
+                self.battle_sequence[
+                    self.round_number - 1
+                ] += f"第{self.round_number}回合: "
+            num1, num2 = analyze_click_order(
+                [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                "click_order.txt",
+            )
+
             # 创建数字标签
-            num1_label = tk.Label(frame, text="1")
+            num1_label = tk.Label(frame, text=num1)
             num1_label.pack()
-            num2_label = tk.Label(frame, text="2")
+            num2_label = tk.Label(frame, text=num2)
             num2_label.pack()
 
             # 创建主按钮
