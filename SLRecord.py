@@ -6,6 +6,9 @@ class ButtonApp:
         self.root = root
         self.root.title("Button App")
 
+        # 设置固定窗口大小，防止闪烁
+        self.root.geometry("800x450")
+
         self.main_buttons = []
         self.sub_buttons = []
         self.click_order = []
@@ -21,31 +24,31 @@ class ButtonApp:
         self.create_recent_actions_label()
 
     def create_sub_buttons_placeholder(self):
-        # Create placeholders for the sub-buttons
+        # 创建子按钮的位置占位符
         for i in range(3):
             for j in range(8):
-                placeholder = tk.Label(self.root, text="", width=3, height=2)
+                placeholder = tk.Label(self.root, text="", width=5, height=5)
                 placeholder.grid(row=i, column=j, padx=5, pady=5)
 
     def create_main_buttons(self):
         for i in range(10):
-            # Create a frame to hold the button and its labels
+            # 在框架中创建按钮及其标签
             frame = tk.Frame(self.root, width=50, height=50)
             frame.grid(row=3, column=i, padx=5, pady=5)
 
-            # Create labels for the numbers
+            # 创建数字标签
             num1_label = tk.Label(frame, text="1")
             num1_label.pack()
             num2_label = tk.Label(frame, text="2")
             num2_label.pack()
 
-            # Create the main button
+            # 创建主按钮
             btn = tk.Button(
                 frame,
                 text=f"{i+1}",
                 command=lambda i=i: self.on_main_button_click(i),
                 width=3,
-                height=1
+                height=1,
             )
             btn.pack()
 
@@ -53,18 +56,18 @@ class ButtonApp:
 
     def create_end_button(self):
         end_button = tk.Button(
-            self.root, text="结束", command=self.end_round, width=3, height=3
+            self.root, text="结束", command=self.end_round, width=5, height=3
         )
         end_button.grid(row=3, column=10, padx=5, pady=5)
 
     def create_reset_button(self):
         reset_button = tk.Button(
-            self.root, text="sl", command=self.reset_round, width=3, height=1
+            self.root, text="重置", command=self.reset_round, width=5, height=1
         )
         reset_button.grid(row=0, column=10, padx=5, pady=5)
 
     def create_input_field(self):
-        self.input_field = tk.Entry(self.root, width=10)
+        self.input_field = tk.Entry(self.root, width=15)
         self.input_field.grid(row=1, column=10, padx=5, pady=5)
 
     def create_recent_actions_label(self):
@@ -83,23 +86,23 @@ class ButtonApp:
         main_action = f"{index+1}->"
         self.click_order.append(f"{index+1}->")
         if self.battle_sequence[self.round_number - 1] == "":
-            self.battle_sequence[self.round_number - 1] = f"第{self.round_number}回合: "
+            self.battle_sequence[
+                self.round_number - 1
+            ] += f"第{self.round_number}回合: "
         self.battle_sequence[self.round_number - 1] += f"{index+1}->"
+        # 检查是否已经创建子按钮，如果没有，则创建
         if not self.sub_buttons:
             for i in range(3):
                 row_buttons = []
                 for j in range(8):
-                    # Create a frame to hold the button and its labels
                     frame = tk.Frame(self.root, width=50, height=50)
                     frame.grid(row=i, column=j, padx=5, pady=5)
 
-                    # Create labels for the numbers
                     num1_label = tk.Label(frame, text="1")
                     num1_label.pack()
                     num2_label = tk.Label(frame, text="2")
                     num2_label.pack()
 
-                    # Create the sub button
                     btn = tk.Button(
                         frame,
                         text=f"{3-i}.{j+1}",
@@ -107,7 +110,7 @@ class ButtonApp:
                             i, j, main_action
                         ),
                         width=3,
-                        height=1
+                        height=1,
                     )
                     btn.pack()
 
@@ -136,36 +139,16 @@ class ButtonApp:
             record = (
                 f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
             )
-            if self.battle_sequence[self.round_number - 1] == "":
-                self.battle_sequence[self.round_number - 1] = (
-                    f"第{self.round_number}回合: "
-                )
             self.battle_sequence[self.round_number - 1] += "结束回合"
             self.recent_actions.append(f"第{self.round_number}回合结束")
             self.update_recent_actions_label()
             self.save_click_order_to_file(record)
             self.click_order = []
-            for row_buttons in self.sub_buttons:
-                for btn, num1_label, num2_label in row_buttons:
-                    btn.destroy()
-                    num1_label.destroy()
-                    num2_label.destroy()
+            self.destroy_sub_buttons()
             self.round_number += 1
-            self.sub_buttons = []
 
     def reset_round(self):
-        if self.click_order:
-            record = (
-                f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
-            )
-            self.battle_sequence.append(record)
-            self.recent_actions.append(f"第{self.round_number}回合结束")
-            self.update_recent_actions_label()
-            self.save_click_order_to_file(record)
-            self.click_order = []
-            self.round_number += 1
-            self.destroy_sub_buttons()
-
+        self.destroy_sub_buttons()
         input_value = self.input_field.get()
         if not input_value:
             input_value = "0"
@@ -173,14 +156,8 @@ class ButtonApp:
         self.recent_actions.append(record)
         self.update_recent_actions_label()
         self.save_click_order_to_file(record, add_newlines=True)
-        self.battle_sequence = []
+        self.battle_sequence = [""] * 10
         self.click_order = []
-        for row_buttons in self.sub_buttons:
-            for btn, num1_label, num2_label in row_buttons:
-                btn.destroy()
-                num1_label.destroy()
-                num2_label.destroy()
-        self.sub_buttons = []
         self.round_number = 1
 
     def save_click_order_to_file(self, record, add_newlines=False):
