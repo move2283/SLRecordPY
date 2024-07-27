@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 
-
 class ButtonApp:
     def __init__(self, root):
         self.root = root
@@ -66,12 +65,17 @@ class ButtonApp:
         if self.click_order:
             record = "\n".join(self.click_order)
             messagebox.showinfo("Click Order", f"The order of clicks:\n{record}")
+            self.save_click_order_to_file(record)
             self.click_order = []
             for row_buttons in self.sub_buttons:
                 for btn in row_buttons:
                     btn.destroy()
             self.sub_buttons = []
 
+    def save_click_order_to_file(self, record):
+        with open("sorted_click_order.txt", "w") as file:
+            sorted_order = sorted(self.click_order)
+            file.write("\n".join(sorted_order))
 
 if __name__ == "__main__":
     root = tk.Tk()
