@@ -191,7 +191,7 @@ class ButtonApp:
             record = (
                 f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
             )
-            self.battle_sequence[self.round_number - 1] += " 结束回合"
+            self.battle_sequence[self.round_number - 1] += "结束回合"
             self.recent_actions.append(f"第{self.round_number}回合结束")
             self.update_recent_actions_label()
             self.save_click_order_to_file(record)
