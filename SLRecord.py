@@ -109,9 +109,31 @@ class ButtonApp:
                     frame = tk.Frame(self.root, width=50, height=50)
                     frame.grid(row=i, column=j, padx=5, pady=5)
 
-                    num1_label = tk.Label(frame, text="1")
+                    if self.battle_sequence[self.round_number - 1] == "":
+                        self.battle_sequence[
+                            self.round_number - 1
+                        ] += f"第{self.round_number}回合: "
+                    if self.round_number > 1:
+                        num1, num2 = analyze_click_order(
+                            self.battle_sequence[: self.round_number - 1]
+                            + [
+                                self.battle_sequence[self.round_number - 1]
+                                + f"{3-i}.{j+1}"
+                            ],
+                            "click_order.txt",
+                        )
+                    else:
+                        num1, num2 = analyze_click_order(
+                            [
+                                self.battle_sequence[self.round_number - 1]
+                                + f"{3-i}.{j+1}"
+                            ],
+                            "click_order.txt",
+                        )
+
+                    num1_label = tk.Label(frame, text=num1)
                     num1_label.pack()
-                    num2_label = tk.Label(frame, text="2")
+                    num2_label = tk.Label(frame, text=num2)
                     num2_label.pack()
 
                     btn = tk.Button(
@@ -137,6 +159,25 @@ class ButtonApp:
         self.update_recent_actions_label()
         self.destroy_sub_buttons()
 
+        # 重新分析主按钮的数字标签
+        for i in range(10):
+            if self.round_number > 1:
+                num1, num2 = analyze_click_order(
+                    self.battle_sequence[: self.round_number - 1]
+                    + [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                    "click_order.txt",
+                )
+            else:
+                num1, num2 = analyze_click_order(
+                    [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                    "click_order.txt",
+                )
+            # 获取对应的主按钮和标签
+            _, num1_label, num2_label = self.main_buttons[i]
+            # 更新数字标签
+            num1_label.config(text=num1)
+            num2_label.config(text=num2)
+
     def destroy_sub_buttons(self):
         for row_buttons in self.sub_buttons:
             for btn, num1_label, num2_label in row_buttons:
@@ -150,13 +191,38 @@ class ButtonApp:
             record = (
                 f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
             )
-            self.battle_sequence[self.round_number - 1] += "结束回合"
+            self.battle_sequence[self.round_number - 1] += " 结束回合"
             self.recent_actions.append(f"第{self.round_number}回合结束")
             self.update_recent_actions_label()
             self.save_click_order_to_file(record)
             self.click_order = []
             self.destroy_sub_buttons()
             self.round_number += 1
+
+            # 重新分析主按钮的数字标签
+            if self.battle_sequence[self.round_number - 1] == "":
+                self.battle_sequence[
+                    self.round_number - 1
+                ] += f"第{self.round_number}回合: "
+
+            for i in range(10):
+                if self.round_number > 1:
+                    num1, num2 = analyze_click_order(
+                        self.battle_sequence[: self.round_number - 1]
+                        + [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                        "click_order.txt",
+                    )
+                else:
+                    num1, num2 = analyze_click_order(
+                        [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                        "click_order.txt",
+                    )
+
+                # 获取对应的主按钮和标签
+                _, num1_label, num2_label = self.main_buttons[i]
+                # 更新数字标签
+                num1_label.config(text=num1)
+                num2_label.config(text=num2)
 
     def reset_round(self):
         self.destroy_sub_buttons()
@@ -170,6 +236,31 @@ class ButtonApp:
         self.battle_sequence = [""] * 10
         self.click_order = []
         self.round_number = 1
+
+        # 重新分析主按钮的数字标签
+        if self.battle_sequence[self.round_number - 1] == "":
+            self.battle_sequence[
+                self.round_number - 1
+            ] += f"第{self.round_number}回合: "
+
+        for i in range(10):
+            if self.round_number > 1:
+                num1, num2 = analyze_click_order(
+                    self.battle_sequence[: self.round_number - 1]
+                    + [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                    "click_order.txt",
+                )
+            else:
+                num1, num2 = analyze_click_order(
+                    [self.battle_sequence[self.round_number - 1] + f"{i+1}->"],
+                    "click_order.txt",
+                )
+
+            # 获取对应的主按钮和标签
+            _, num1_label, num2_label = self.main_buttons[i]
+            # 更新数字标签
+            num1_label.config(text=num1)
+            num2_label.config(text=num2)
 
     def save_click_order_to_file(self, record, add_newlines=False):
         with open("click_order.txt", "a", encoding="utf-8") as file:

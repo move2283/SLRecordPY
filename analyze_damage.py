@@ -35,7 +35,7 @@ def analyze_click_order(current_sequence, file_path):
     if click_count > 0:
         expected_damage = total_damage / click_count
     else:
-        expected_damage = 0
+        expected_damage = -1
 
     return click_count, expected_damage
 
@@ -43,8 +43,8 @@ def analyze_click_order(current_sequence, file_path):
 def main():
     file_path = "click_order.txt"
     current_sequence = [
-        "第1回合: 5->3.1 3->3.1  结束回合",
-        "第2回合: 5->3",
+        "第1回合: 1->3.1 3->3.1  结束回合",
+        "第2回合: 5->",
     ]
 
     click_count, expected_damage = analyze_click_order(current_sequence, file_path)
