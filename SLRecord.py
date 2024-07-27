@@ -29,15 +29,27 @@ class ButtonApp:
 
     def create_main_buttons(self):
         for i in range(10):
+            # Create a frame to hold the button and its labels
+            frame = tk.Frame(self.root, width=50, height=50)
+            frame.grid(row=3, column=i, padx=5, pady=5)
+
+            # Create labels for the numbers
+            num1_label = tk.Label(frame, text="1")
+            num1_label.pack()
+            num2_label = tk.Label(frame, text="2")
+            num2_label.pack()
+
+            # Create the main button
             btn = tk.Button(
-                self.root,
+                frame,
                 text=f"{i+1}",
                 command=lambda i=i: self.on_main_button_click(i),
                 width=3,
-                height=1,
+                height=1
             )
-            btn.grid(row=3, column=i, padx=5, pady=5)
-            self.main_buttons.append(btn)
+            btn.pack()
+
+            self.main_buttons.append((btn, num1_label, num2_label))
 
     def create_end_button(self):
         end_button = tk.Button(
@@ -77,15 +89,29 @@ class ButtonApp:
             for i in range(3):
                 row_buttons = []
                 for j in range(8):
+                    # Create a frame to hold the button and its labels
+                    frame = tk.Frame(self.root, width=50, height=50)
+                    frame.grid(row=i, column=j, padx=5, pady=5)
+
+                    # Create labels for the numbers
+                    num1_label = tk.Label(frame, text="1")
+                    num1_label.pack()
+                    num2_label = tk.Label(frame, text="2")
+                    num2_label.pack()
+
+                    # Create the sub button
                     btn = tk.Button(
-                        self.root,
+                        frame,
                         text=f"{3-i}.{j+1}",
                         command=lambda i=i, j=j: self.on_sub_button_click(
                             i, j, main_action
                         ),
+                        width=3,
+                        height=1
                     )
-                    btn.grid(row=i, column=j, padx=5, pady=5)
-                    row_buttons.append(btn)
+                    btn.pack()
+
+                    row_buttons.append((btn, num1_label, num2_label))
                 self.sub_buttons.append(row_buttons)
 
     def on_sub_button_click(self, row, col, main_action):
@@ -99,8 +125,10 @@ class ButtonApp:
 
     def destroy_sub_buttons(self):
         for row_buttons in self.sub_buttons:
-            for btn in row_buttons:
+            for btn, num1_label, num2_label in row_buttons:
                 btn.destroy()
+                num1_label.destroy()
+                num2_label.destroy()
         self.sub_buttons = []
 
     def end_round(self):
@@ -118,8 +146,10 @@ class ButtonApp:
             self.save_click_order_to_file(record)
             self.click_order = []
             for row_buttons in self.sub_buttons:
-                for btn in row_buttons:
+                for btn, num1_label, num2_label in row_buttons:
                     btn.destroy()
+                    num1_label.destroy()
+                    num2_label.destroy()
             self.round_number += 1
             self.sub_buttons = []
 
@@ -146,8 +176,10 @@ class ButtonApp:
         self.battle_sequence = []
         self.click_order = []
         for row_buttons in self.sub_buttons:
-            for btn in row_buttons:
+            for btn, num1_label, num2_label in row_buttons:
                 btn.destroy()
+                num1_label.destroy()
+                num2_label.destroy()
         self.sub_buttons = []
         self.round_number = 1
 
