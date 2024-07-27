@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class ButtonApp:
     def __init__(self, root):
         self.root = root
@@ -10,6 +11,7 @@ class ButtonApp:
         self.click_order = []
         self.round_number = 1
         self.recent_actions = []
+        self.battle_sequence = [""] * 10
 
         self.create_sub_buttons_placeholder()
         self.create_main_buttons()
@@ -32,18 +34,21 @@ class ButtonApp:
                 text=f"{i+1}",
                 command=lambda i=i: self.on_main_button_click(i),
                 width=3,
-                height=1
+                height=1,
             )
             btn.grid(row=3, column=i, padx=5, pady=5)
             self.main_buttons.append(btn)
 
     def create_end_button(self):
-        end_button = tk.Button(self.root, text="结束", command=self.end_round, width=3,
-                height=3)
+        end_button = tk.Button(
+            self.root, text="结束", command=self.end_round, width=3, height=3
+        )
         end_button.grid(row=3, column=10, padx=5, pady=5)
 
     def create_reset_button(self):
-        reset_button = tk.Button(self.root, text="sl", command=self.reset_round, width=3, height=1)
+        reset_button = tk.Button(
+            self.root, text="sl", command=self.reset_round, width=3, height=1
+        )
         reset_button.grid(row=0, column=10, padx=5, pady=5)
 
     def create_input_field(self):
@@ -51,8 +56,12 @@ class ButtonApp:
         self.input_field.grid(row=1, column=10, padx=5, pady=5)
 
     def create_recent_actions_label(self):
-        self.recent_actions_label = tk.Label(self.root, text="最近三次操作:", justify='left', anchor='w')
-        self.recent_actions_label.grid(row=4, column=0, columnspan=11, sticky='w', padx=5, pady=5)
+        self.recent_actions_label = tk.Label(
+            self.root, text="最近三次操作:", justify="left", anchor="w"
+        )
+        self.recent_actions_label.grid(
+            row=4, column=0, columnspan=11, sticky="w", padx=5, pady=5
+        )
 
     def update_recent_actions_label(self):
         recent_actions_text = "最近三次操作: " + "   ".join(self.recent_actions[-3:])
@@ -61,6 +70,9 @@ class ButtonApp:
     def on_main_button_click(self, index):
         main_action = f"{index+1}->"
         self.click_order.append(f"{index+1}->")
+        if self.battle_sequence[self.round_number - 1] == "":
+            self.battle_sequence[self.round_number - 1] = f"第{self.round_number}回合: "
+        self.battle_sequence[self.round_number - 1] += f"{index+1}->"
         if not self.sub_buttons:
             for i in range(3):
                 row_buttons = []
@@ -68,7 +80,9 @@ class ButtonApp:
                     btn = tk.Button(
                         self.root,
                         text=f"{3-i}.{j+1}",
-                        command=lambda i=i, j=j: self.on_sub_button_click(i, j, main_action),
+                        command=lambda i=i, j=j: self.on_sub_button_click(
+                            i, j, main_action
+                        ),
                     )
                     btn.grid(row=i, column=j, padx=5, pady=5)
                     row_buttons.append(btn)
@@ -78,6 +92,7 @@ class ButtonApp:
         sub_action = f"{3-row}.{col+1}"
         full_action = f"{main_action}{sub_action}"
         self.click_order.append(f"{3-row}.{col+1} ")
+        self.battle_sequence[self.round_number - 1] += f"{sub_action} "
         self.recent_actions.append(full_action)
         self.update_recent_actions_label()
         self.destroy_sub_buttons()
@@ -90,7 +105,14 @@ class ButtonApp:
 
     def end_round(self):
         if self.click_order:
-            record = f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
+            record = (
+                f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
+            )
+            if self.battle_sequence[self.round_number - 1] == "":
+                self.battle_sequence[self.round_number - 1] = (
+                    f"第{self.round_number}回合: "
+                )
+            self.battle_sequence[self.round_number - 1] += "结束回合"
             self.recent_actions.append(f"第{self.round_number}回合结束")
             self.update_recent_actions_label()
             self.save_click_order_to_file(record)
@@ -102,9 +124,11 @@ class ButtonApp:
             self.sub_buttons = []
 
     def reset_round(self):
-
         if self.click_order:
-            record = f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
+            record = (
+                f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
+            )
+            self.battle_sequence.append(record)
             self.recent_actions.append(f"第{self.round_number}回合结束")
             self.update_recent_actions_label()
             self.save_click_order_to_file(record)
@@ -119,6 +143,7 @@ class ButtonApp:
         self.recent_actions.append(record)
         self.update_recent_actions_label()
         self.save_click_order_to_file(record, add_newlines=True)
+        self.battle_sequence = []
         self.click_order = []
         for row_buttons in self.sub_buttons:
             for btn in row_buttons:
@@ -127,15 +152,14 @@ class ButtonApp:
         self.round_number = 1
 
     def save_click_order_to_file(self, record, add_newlines=False):
-        with open("click_order.txt", "a", encoding='utf-8') as file:
+        with open("click_order.txt", "a", encoding="utf-8") as file:
             if add_newlines:
                 file.write(f"\n{record}\n\n")
             else:
                 file.write(record + "\n")
 
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = ButtonApp(root)
     root.mainloop()
-
-    
