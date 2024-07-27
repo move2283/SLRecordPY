@@ -41,7 +41,7 @@ class ButtonApp:
         end_button.grid(row=3, column=10, padx=5, pady=5)
 
     def on_main_button_click(self, index):
-        self.click_order.append(f"主按钮 {index+1}")
+        self.click_order.append(f"{index+1}->")
         if not self.sub_buttons:
             for i in range(3):
                 row_buttons = []
@@ -56,8 +56,7 @@ class ButtonApp:
                 self.sub_buttons.append(row_buttons)
 
     def on_sub_button_click(self, row, col):
-        self.click_order.append(f"子按钮 {row*5 + col+1}")
-        self.click_order.append(f"Sub Button {row*5 + col+1}")
+        self.click_order.append(f"{3-row}.{col+1} ")
         self.destroy_sub_buttons()
 
     def destroy_sub_buttons(self):
@@ -68,17 +67,18 @@ class ButtonApp:
 
     def end_round(self):
         if self.click_order:
-            record = f"第{self.round_number}回合\n" + "\n".join(self.click_order) + "\n结束回合"
+            record = f"第{self.round_number}回合: " + "".join(self.click_order) + "结束回合"
             self.save_click_order_to_file(record)
             self.click_order = []
             for row_buttons in self.sub_buttons:
                 for btn in row_buttons:
                     btn.destroy()
+            self.round_number += 1
             self.sub_buttons = []
 
     def save_click_order_to_file(self, record):
-        with open("sorted_click_order.txt", "w", encoding='utf-8') as file:
-            file.write(record + "\n\n")
+        with open("sorted_click_order.txt", "a", encoding='utf-8') as file:
+            file.write(record + "\n")
 
 if __name__ == "__main__":
     root = tk.Tk()
